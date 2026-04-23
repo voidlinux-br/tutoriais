@@ -55,13 +55,13 @@ O firewall é o único host exposto à Internet.
 Atualize o sistema
 
 ```bash
-sudo xbps-install -Syu
+vinstall -Syu
 ```
 
 Instale os pacotes
 
 ```bash
-sudo xbps-install -y \
+vinstall -y \
   vim \
   bash-completion \
   iptables \
@@ -418,9 +418,9 @@ source ~/.bashrc
 Ajustes de logs para atender o fail2ban
 
 ```bash
-sudo xbps-install -y socklog-void
-sudo ln -s /etc/sv/socklog-unix /var/service/
-sudo ln -s /etc/sv/nanoklogd /var/service/
+vinstall -y socklog-void
+vservice enable socklog-unix
+vservice enable nanoklogd
 sudo touch /var/log/auth.log
 ```
 
@@ -484,7 +484,7 @@ sudo fail2ban-client set sshd unbanip X.X.X.X
 ## 13. ✅ IMPLANTANDO UM DNS RECURSIVO TEMPORÁRIO PARA ATENDER A REDE INTERNA
 
 ```bash
-sudo xbps-install -y unbound
+vinstall -y unbound
 ```
 
 Configuração mínima
@@ -520,7 +520,7 @@ sv start unbound
 Instalação do pacote
 
 ```bash
-sudo xbps-install -y dhcp
+vinstall -y dhcp
 ```
 
 Esse pacote instala:
