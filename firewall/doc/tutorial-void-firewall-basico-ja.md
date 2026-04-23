@@ -1,0 +1,486 @@
+# 🧩 VOID LINUX チュートリアル — セキュリティ スキームの実装 – VOIDBR LABORATORY
+
+📌 Linux、IPTables、NAT、ポートノッキングを無効にするファイアウォール。
+
+---
+
+# 🔥 SAMBA4 ドメイン (VOIDBR.ORG) に統合されたファイアウォール + プロキシ
+
+## 🎯 このチュートリアルの目的は、**Debian 13** 上に **ファイアウォール + Squid プロキシ** サーバーを構成し、**メイン ゲートウェイ (192.168.70.254)** として機能し、**VOIDBR.ORG** ドメイン (ドメイン コントローラー: **192.168.70.253**) に統合し、**Active Directory 経由で Squid でユーザーを認証することです。 (NTLM)** し、**ブロック ポリシー**を適用します。
+
+---
+
+## 🌐 1. ネットワーク トポロジ - 機能、IP アドレス指定および名前:
+
+- ドメイン: VOIDBR.ORG
+
+- ファイアウォール/プロキシ: SRVFIREWALL 192.168.70.254
+
+- ドメイン コントローラー: SRVDC01 192.168.70.253
+
+- ファイルサーバー: SRVFILES 192.168.70.252
+
+- WAN: `eth0` → 192.168.122.254/24 (ゲートウェイ: 192.168.122.1)
+
+- LAN: `eth1` → 192.168.70.254/24
+
+---
+
+## 📌 導入対象
+
+### 入力
+
+-> LAN/DMZ からファイアウォールへの ping を許可する
+-> LAN/DMZ からファイアウォールへの SSH を許可する
+-> LAN 経由のプロキシへのアクセスを許可する
+-> ポートノックを使用して、RECENT モジュール経由でファイアウォールへの外部 SSH を許可します。
+
+### フォワード
+
+-> LAN アクセスを許可 AD -> DNS、SMB、DHCP、NETBIOS)
+-> DMZ がインターネットにアクセスできるようにする
+-> AD がインターネット上の DNS にアクセスできるようにする
+-> LAN はインターネット上の電子メールにアクセスする必要があります
+-> LAN からの DMZ ping を許可する
+-> LAN は収益ネット、政府などにアクセスする必要があります。
+
+### NAT
+
+-> Web サーバーの公開 -> 80/443
+-> LAN および DMZ のアウトバウンド NAT
+
+---
+
+## ✅ 2. ネットワーク図
+
+```bash
+Internet
+   |
+[Roteador do ISP]
+LAN: 192.168.122.1/24
+   |
+[Firewall VM - Void Linux]
+eth0 (WAN): 192.168.122.254/24
+eth1 (LAN): 192.168.70.254/24
+   |
+[Rede interna / Switch]
+```
+
+別の角度から見る
+
+```bash
+Internet
+  |
+[ Knock correto ]
+  |
+iptables (xt_recent libera SSH por X segundos)
+  |
+sshd (porta 22254)
+  |
+Fail2ban (analisa auth.log)
+  |
+iptables (ban definitivo do IP)
+```
+
+ファイアウォールは、インターネットに公開される唯一のホストです。
+
+## ✅ 3. 目的と前提
+
+- デフォルトポリシーを拒否する
+- アクティブなIPv4ルーティング
+- スキャナーはドアを決して認識しません
+- 唯一のエントリポイントとしてのファイアウォール
+- Web ダッシュボードは公開されていません
+- ポートノッキングで保護されたSSH
+- Fail2banによるブルートフォース制御
+- LAN 用の制御された NAT
+- SSHトンネル経由のリモート管理
+
+## 注: チュートリアルは root ユーザーで実行されます。
+
+## ✅ 4. 必要なパッケージを更新してインストールする
+
+システムをアップデートする
+
+```bash
+vinstall -Syu
+```
+
+パッケージをインストールする
+
+```bash
+vinstall -y \
+  vim \
+  bash-completion \
+  iptables \
+  iproute2 \
+  openssh \
+  tcpdump \
+  conntrack-tools \
+  fail2ban \
+  dnsmasq
+```
+
+## DNSMASQ を有効にする
+
+```bash
+vservice enable dnsmasq
+```
+
+## オンラインサービスを検証します
+
+```bash
+vsv
+```
+
+## ✅ 5. SSH 設定
+
+```bash
+vim /etc/ssh/sshd_config
+```
+
+尖った線を調整する
+
+```bash
+Port 22254
+ListenAddress 0.0.0.0
+
+PermitRootLogin yes
+PasswordAuthentication yes
+UsePAM no
+
+SyslogFacility AUTH
+LogLevel INFO
+```
+
+Fail2ban はログに依存し、ラインを保証します
+
+```bash
+SyslogFacility AUTH
+LogLevel INFO
+```
+
+## サービスのアクティベーション
+
+```bash
+vservice enable sshd
+```
+
+## 完全な展開後:
+
+- rootログインを無効にする
+
+- キー認証のみを使用する
+
+## ✅ 6. ファイアウォールネットワークのセットアップ
+
+```bash
+vim /etc/dhcpcd.conf
+```
+
+コンテンツ
+
+```bash
+# CONFIGURAÇÃO DE REDE DO FIREWALL
+
+# WAN – 192.168.122.0/24
+interface eth0
+static ip_address=192.168.122.254/24
+static routers=192.168.122.1
+static domain_name_servers=192.168.122.1 8.8.8.8
+
+# LAN – 192.168.70.0/24
+interface eth1
+static ip_address=192.168.70.254/24
+nogateway
+```
+
+適用する
+
+```bash
+vservice restart dhcpcd
+```
+
+## ✅ 7. ポートノッキング – カーネルサポート
+
+必要なモジュールをロードします
+
+```bash
+modprobe xt_recent
+```
+
+検証:
+
+```bash
+lsmod | grep xt_recent
+```
+
+期待される結果
+
+```bash
+xt_recent              24576  0
+x_tables               65536  1 xt_recent
+```
+
+## ファイルを作成してこれらのモジュールを永続的に追加します。
+
+```bash
+echo 'xt_recent' >/etc/modules-load.d/xt_recent.conf
+```
+
+## ✅ 8. ファイアウォール IP テーブル
+
+ファイアウォールネットワークカード間のルーティングを有効にする
+
+```bash
+echo 'net.ipv4.ip_forward=1' >/etc/sysctl.conf
+```
+
+再起動せずに適用します。
+
+```bash
+sysctl --system
+```
+
+すべての事前ルール (存在する場合) をクリアします。
+
+```bash
+iptables -F
+iptables -t nat -F
+iptables -X
+```
+
+🔐 FILTER テーブルのルール
+
+デフォルトのポリシーを設定します。
+
+```bash
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+```
+
+INPUT (ファイアウォールアクセス)
+
+```bash
+# Libera loopback
+iptables -A INPUT -i lo -j ACCEPT
+
+# Conexões estabelecidas
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# ICMP (ping) da LAN
+iptables -A INPUT -s 192.168.70.0/24 -p icmp --icmp-type echo-request -j ACCEPT
+
+
+# SSH (porta customizada)
+iptables -A INPUT -s 192.168.70.0/24 -p tcp --dport 22254 -j ACCEPT
+```
+
+🔐 FORWARD テーブル ルール (ネットワーク間のトラフィック)
+
+```bash
+# Conexões estabelecidas
+iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# ICMP (opcional, recomendado)
+iptables -A FORWARD -p icmp -j ACCEPT
+
+# Libera range de servidores
+iptables -A FORWARD -m iprange --src-range 192.168.70.250-192.168.70.253 -j ACCEPT
+
+# LAN → Internet (via WAN)
+iptables -A FORWARD -s 192.168.70.0/24 -o enp1s0 -p tcp -m multiport --dports 80,443 -j ACCEPT
+iptables -A FORWARD -s 192.168.70.0/24 -o enp1s0 -p udp --dport 53 -j ACCEPT
+
+# LAN -> LAN permitido (DNS 53, Kerberos 88, LDAP 389, SMB 445, RPC 135 e 49152–65535)
+iptables -A FORWARD -s 192.168.70.0/24 -d 192.168.70.0/24 -j ACCEPT
+```
+
+🔐 NAT テーブルのルール
+
+```bash
+iptables -t nat -A POSTROUTING -s 192.168.70.0/24 -o eth0 -j MASQUERADE
+```
+
+🧾 ドロップされたパケットのログ (オプション)
+
+```bash
+iptables -A INPUT -j LOG -m limit --limit 5/min --log-prefix "DROP_INPUT: "
+iptables -A FORWARD -j LOG -m limit --limit 5/min --log-prefix "DROP_FORWARD: "
+```
+
+# ノック：IPを記録します
+
+iptables -A INPUT -i eth0 -p tcp --dport 34567 -m conntrack --ctstate NEW -m Recent --set --name KNOCK --rsource -j DROP
+
+# SSH が 1 回解放され、ノックが解除されます
+
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i eth0 -p tcp --dport 22254 -m conntrack --ctstate NEW -m 最近の --rcheck --秒 15 --name KNOCK --rsource -m 最近の --remove --name KNOCK --rsource -j ACCEPT
+
+ルールを永続的に保存します。
+
+```bash
+iptables-save > /etc/iptables/iptables.rules
+```
+
+作成されたルールをリストします (数値、詳細、リスト):
+
+```bash
+iptables -nvL --line-number
+iptables -t nat -nvL --line-number
+```
+
+```bash
+cat /etc/iptables/iptables.rules
+```
+
+```bash
+# Generated by iptables-save v1.8.11 on Thu Apr 23 19:50:45 2026
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [139:12768]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -s 192.168.70.0/24 -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -s 192.168.70.0/24 -p tcp -m tcp --dport 22254 -j ACCEPT
+-A INPUT -i eth0 -p tcp -m tcp --dport 34567 -m conntrack --ctstate NEW -m recent --set --name KNOCK --mask 255.255.255.255 --rsource -j DROP
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i eth0 -p tcp -m tcp --dport 22254 -m conntrack --ctstate NEW -m recent --rcheck --seconds 15 --name KNOCK --mask 255.255.255.255 --rsource -m recent --remove --name KNOCK --mask 255.255.255.255 --rsource -j ACCEPT
+-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -p icmp -j ACCEPT
+-A FORWARD -m iprange --src-range 192.168.70.250-192.168.70.253 -j ACCEPT
+-A FORWARD -s 192.168.70.0/24 -o enp1s0 -p tcp -m multiport --dports 80,443 -j ACCEPT
+-A FORWARD -s 192.168.70.0/24 -o enp1s0 -p udp -m udp --dport 53 -j ACCEPT
+-A FORWARD -s 192.168.70.0/24 -d 192.168.70.0/24 -j ACCEPT
+COMMIT
+# Completed on Thu Apr 23 19:50:45 2026
+# Generated by iptables-save v1.8.11 on Thu Apr 23 19:50:45 2026
+*mangle
+:PREROUTING ACCEPT [138:12076]
+:INPUT ACCEPT [138:12076]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [139:12768]
+:POSTROUTING ACCEPT [139:12768]
+COMMIT
+# Completed on Thu Apr 23 19:50:45 2026
+# Generated by iptables-save v1.8.11 on Thu Apr 23 19:50:45 2026
+*raw
+:PREROUTING ACCEPT [138:12076]
+:OUTPUT ACCEPT [139:12768]
+COMMIT
+# Completed on Thu Apr 23 19:50:45 2026
+# Generated by iptables-save v1.8.11 on Thu Apr 23 19:50:45 2026
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -s 192.168.70.0/24 -o eth0 -j MASQUERADE
+COMMIT
+# Completed on Thu Apr 23 19:50:45 2026
+```
+
+## ✅ 9. ポートノッキングのテストと検証 (ホット)
+
+ファイアウォールなしで端末のノックを監視する
+
+```bash
+tcpdump -ni eth0 tcp port 34567
+```
+
+顧客が外部アクセス経由でノックを送信します
+
+```bash
+nc -z 192.168.122.254 12345
+```
+
+✔ SYNが到着
+✔ 削除されました
+✔ 登録を続ける
+✔ステータスが見える
+
+tcpdump で期待される結果
+
+```bash
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+
+14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
+14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
+^C
+2 packets captured
+3 packets received by filter
+0 packets dropped by kernel
+```
+
+重要な技術上の注意事項
+
+- RST は TCP スタック経由で送信されます
+- パッケージは xt_recent によって登録されます
+- ポートがサービスとして応答しない
+- バナーや指紋はありません
+
+IP 登録を検証します (15 秒以内に削除されます)。
+
+```bash
+cat /proc/net/xt_recent/KNOCK
+```
+
+期待される結果
+
+```bash
+src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+```
+
+## ✅ 10. 外部 SSH 検証を実行する
+
+ノックを実行する
+
+```bash
+nc -z 192.168.122.254 34567
+```
+
+15秒以内にアクセスしてください
+
+```bash
+ssh -p 22254 anon@192.168.122.254
+```
+
+推奨されるエイリアス
+
+```bash
+vim ~/.bashrc
+```
+
+コンテンツ
+
+```bash
+alias knock='nc -z 192.168.122.254 34567'
+alias firewall='ssh -p 22254 anon@192.168.122.254'
+```
+
+検証のためにファイルを再読み込みします
+
+```bash
+source ~/.bashrc
+```
+
+## 11. 🎉 最終チェックリスト
+
+- ノックなしの目に見えない SSH
+- 使い捨てノック
+- 短いアクセスウィンドウ
+- ノック無視禁止
+- 機能的NAT
+- 永続的なファイアウォール
+- 最小限の再帰 DNS (PDC が入るまで)
+
+---
+
+🎯 以上です!
+
+👉 チリ_REF_0_チリ
+👉 チリ_REF_0_チリ
