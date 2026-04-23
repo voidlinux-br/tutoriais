@@ -108,8 +108,7 @@ sudo tail -f /var/log/auth.log
 ## Ativação do serviço
 
 ```bash
-sudo ln -s /etc/sv/sshd /var/service/
-sudo sv start sshd
+vservice enable sshd
 ```
 
 ## Após a implantação completa:
@@ -318,8 +317,7 @@ Ativar, rodar e validar status
 
 ```bash
 sudo chmod +x /etc/sv/firewall/run
-sudo ln -s /etc/sv/firewall /var/service/
-sudo sv status firewall
+vservice enable firewall
 ```
 
 ## ✅ 9. TESTE E VALIDAÇÃO (Á QUENTE) DO PORT KNOCKING
@@ -452,9 +450,8 @@ bantime  = 24h
 Ativação no runit
 
 ```bash
-sudo ln -s /etc/sv/fail2ban /var/service/
-sudo sv start fail2ban
-sudo sv status fail2ban
+vservice fail2ban
+vsv
 ```
 
 ## 12. ✅ TESTE DO FAIL2BAN (ATENÇÃO, VC SE TRANCA PRA FORA!)
@@ -588,25 +585,8 @@ Explicação:
 Ativar o serviço no runit:
 
 ```bash
-sudo ln -s /etc/sv/dhcpd4 /var/service/
-```
-
-Iniciar/reiniciar:
-
-```bash
-sudo sv restart dhcpd4
-```
-
-Verificar status:
-
-```bash
-sudo sv status dhcpd4
-```
-
-Resultado esperado:
-
-```bash
-run: dhcpd4: (pid 17652) 831s; run: log: (pid 15544) 1213s
+vservice dhcpd4
+vsv
 ```
 
 Verificar escuta da porta 67
