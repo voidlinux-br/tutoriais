@@ -55,13 +55,13 @@ O firewall é o único host exposto à Internet.
 Atualize o sistema
 
 ```bash
-sudo xbps-install -Syu
+vinstall -Syu
 ```
 
 Instale os pacotes
 
 ```bash
-sudo xbps-install -y \
+vinstall -y \
   vim \
   bash-completion \
   iptables \
@@ -108,8 +108,7 @@ sudo tail -f /var/log/auth.log
 ## Ativação do serviço
 
 ```bash
-sudo ln -s /etc/sv/sshd /var/service/
-sudo sv start sshd
+vservice enable sshd
 ```
 
 ## Após a implantação completa:
@@ -318,8 +317,7 @@ Ativar, rodar e validar status
 
 ```bash
 sudo chmod +x /etc/sv/firewall/run
-sudo ln -s /etc/sv/firewall /var/service/
-sudo sv status firewall
+vservice enable firewall
 ```
 
 ## ✅ 9. TESTE E VALIDAÇÃO (Á QUENTE) DO PORT KNOCKING
@@ -418,9 +416,9 @@ source ~/.bashrc
 Ajustes de logs para atender o fail2ban
 
 ```bash
-sudo xbps-install -y socklog-void
-sudo ln -s /etc/sv/socklog-unix /var/service/
-sudo ln -s /etc/sv/nanoklogd /var/service/
+vinstall -y socklog-void
+vservice enable socklog-unix
+vservice enable nanoklogd
 sudo touch /var/log/auth.log
 ```
 
@@ -452,9 +450,8 @@ bantime  = 24h
 Ativação no runit
 
 ```bash
-sudo ln -s /etc/sv/fail2ban /var/service/
-sudo sv start fail2ban
-sudo sv status fail2ban
+vservice fail2ban
+vsv
 ```
 
 ## 12. ✅ TESTE DO FAIL2BAN (ATENÇÃO, VC SE TRANCA PRA FORA!)
@@ -484,7 +481,7 @@ sudo fail2ban-client set sshd unbanip X.X.X.X
 ## 13. ✅ IMPLANTANDO UM DNS RECURSIVO TEMPORÁRIO PARA ATENDER A REDE INTERNA
 
 ```bash
-sudo xbps-install -y unbound
+vinstall -y unbound
 ```
 
 Configuração mínima
@@ -520,7 +517,7 @@ sv start unbound
 Instalação do pacote
 
 ```bash
-sudo xbps-install -y dhcp
+vinstall -y dhcp
 ```
 
 Esse pacote instala:
@@ -588,25 +585,8 @@ Explicação:
 Ativar o serviço no runit:
 
 ```bash
-sudo ln -s /etc/sv/dhcpd4 /var/service/
-```
-
-Iniciar/reiniciar:
-
-```bash
-sudo sv restart dhcpd4
-```
-
-Verificar status:
-
-```bash
-sudo sv status dhcpd4
-```
-
-Resultado esperado:
-
-```bash
-run: dhcpd4: (pid 17652) 831s; run: log: (pid 15544) 1213s
+vservice dhcpd4
+vsv
 ```
 
 Verificar escuta da porta 67
