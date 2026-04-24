@@ -330,7 +330,7 @@ ssh -p 22254 anon@192.168.122.254
 
 ---
 
-## ⚡ ALIASES
+## ⚡ ALIASES (opcional)
 
 ```bash
 alias knock='nc -z 192.168.122.254 34567'
@@ -365,7 +365,7 @@ DESTE PROGRAMA.
 
 ---
 
-Copyright (C) 2026 VoidBR Team  
+Copyright (C) 2026 VoidBR Team - https://github.com/voidlinuxbr  
 👉   https://t.me/m3vorak  
 👉   https://t.me/vcatafesta  
 
