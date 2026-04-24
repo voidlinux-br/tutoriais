@@ -6,11 +6,12 @@
 
 ## 🎯 OBJETIVO
 
-Configurar um **Firewall em Void Linux** atuando como:
+Configurar um **Firewall em Void Linux** atuando como gateway da rede:
 
-- Gateway principal: `192.168.70.254`
-- Ponto único de entrada da rede
-- Controle total de tráfego (LAN / WAN / DMZ)
+- WAN: 192.168.122.254
+- LAN: 192.168.70.254
+- Controle total de tráfego
+- Superfície de ataque mínima
 
 ---
 
@@ -40,6 +41,14 @@ Internet
 ✔ Firewall como único ponto exposto  
 ✔ NAT controlado  
 ✔ DNS local seguro  
+
+- Tudo bloqueado por padrão
+- Apenas tráfego necessário liberado
+- SSH protegido por Port Knocking
+- DNS local via Unbound
+- NAT controlado
+
+
 ---
 
 # ⚠ AVISO IMPORTANTE
