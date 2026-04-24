@@ -1,10 +1,10 @@
-# 🧩 VOID LINUX — FIREWALL HARDENED (VOIDBR LAB)
+# 🧩   VOIDBR LINUX — TUTORIAL FIREWALL HARDENED (VOIDBR LAB)
 
-📌 Iptables + Unbound + Port Knocking
+📌   Iptables + Unbound + Port Knocking
 
 ---
 
-## 🎯 OBJETIVO
+## 🎯   OBJETIVO
 
 Configurar um **Firewall em Void Linux** atuando como gateway da rede:
 
@@ -15,7 +15,7 @@ Configurar um **Firewall em Void Linux** atuando como gateway da rede:
 
 ---
 
-## 🌐 TOPOLOGIA
+## 🌐   TOPOLOGIA
 
 ### 🔹 Estrutura
 
@@ -36,18 +36,12 @@ Internet
 
 ## 🎯 POLÍTICA DE SEGURANÇA
 
-✔ Default deny  
-✔ SSH invisível (Port Knocking)  
+✔ Default deny - Tudo bloqueado por padrão  
+✔ Apenas tráfego necessário liberado  
+✔ SSH invisível e protegido por Port Knocking  
 ✔ Firewall como único ponto exposto  
 ✔ NAT controlado  
-✔ DNS local seguro  
-
-- Tudo bloqueado por padrão
-- Apenas tráfego necessário liberado
-- SSH protegido por Port Knocking
-- DNS local via Unbound
-- NAT controlado
-
+✔ DNS local seguro via Unbound  
 
 ---
 
