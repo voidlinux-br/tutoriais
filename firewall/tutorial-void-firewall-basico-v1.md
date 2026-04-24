@@ -43,6 +43,58 @@ Internet
 
 ---
 
+# Antes de começar
+
+Este tutorial descreve uma **instalação manual**, utilizando configuração explícita do sistema.  
+Ele **não é um instalador automático**.
+
+## ⚠️ Leia com atenção
+
+- Este guia **pressupõe familiaridade com Linux**, terminal e conceitos básicos de sistemas (discos, partições, boot, serviços).
+- Leia **todo o tutorial antes de executar qualquer comando**.
+
+## 🖥️ Ambiente recomendado
+
+- **VM (VirtualBox, QEMU, KVM, etc.)** para testes e aprendizado.
+- Hardware dedicado **sem dados importantes**.
+- Ambiente de laboratório ou instalação consciente.
+
+❌ **Não recomendado** para uso direto em produção sem adaptações.
+
+## 🔐 Sobre segurança
+
+Durante o processo de instalação, algumas configurações **priorizam praticidade**, não segurança:
+- Login do usuário `root` via SSH pode ser habilitado temporariamente.
+- Autenticação por senha pode estar ativa.
+- Compatibilidade legada (ex: `ssh-rsa`) pode ser permitida.
+
+👉 **Essas configurações devem ser revisadas após a instalação**, especialmente em sistemas expostos à rede.
+
+## 🧠 Importante saber
+
+- Execute os comandos **um a um**, conferindo a saída.
+- Ajuste nomes de discos, interfaces de rede e usuários conforme o seu sistema.
+- **Não copie e cole cegamente**.
+- Em caso de dúvida, **pare** e revise o passo atual.
+
+## 🛠️ Em caso de erro
+
+Se algo der errado:
+- Não reinicie às cegas.
+- Verifique e refaça os passos.
+- Entre novamente no sistema com `chroot`.
+- Verifique GRUB, EFI e `initramfs`.
+
+Errar faz parte. Entender o erro é o que separa usuário de operador.
+---
+
+## Iniciar a Instalação
+Entre como root
+```bash
+login    : root
+password : voidlinux
+```
+
 ## 📦 INSTALAÇÃO
 
 ### Atualizar sistema
@@ -298,3 +350,24 @@ alias firewall='ssh -p 22254 anon@192.168.122.254'
 ---
 
 🎯 Done.
+
+## ⚖️ Disclaimer (Aviso Legal)
+
+ESTE SOFTWARE/TUTORIAL É FORNECIDO "COMO ESTÁ", SEM ABSOLUTAMENTE NENHUMA GARANTIA
+DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO A,
+GARANTIAS DE COMERCIALIZAÇÃO OU ADEQUAÇÃO A UM PROPÓSITO ESPECÍFICO.
+
+O USO DESTE SOFTWARE É DE TOTAL RESPONSABILIDADE DO USUÁRIO.
+
+EM NENHUM MOMENTO O AUTOR OU OS CONTRIBUIDORES SERÃO RESPONSÁVEIS POR
+QUALQUER DANO, PERDA DE DADOS OU FALHAS NO SISTEMA DECORRENTES DO USO
+DESTE PROGRAMA.
+
+---
+
+Copyright (C) 2026 VoidBR Team  
+👉   https://t.me/m3vorak  
+👉   https://t.me/vcatafesta  
+
+
+
