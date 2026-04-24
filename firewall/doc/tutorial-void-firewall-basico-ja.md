@@ -69,8 +69,6 @@ iptables (xt_recent libera SSH por X segundos)
   |
 sshd (porta 22254)
   |
-Fail2ban (analisa auth.log)
-  |
 iptables (ban definitivo do IP)
 ```
 
