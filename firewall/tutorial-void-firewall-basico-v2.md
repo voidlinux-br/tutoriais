@@ -386,20 +386,65 @@ alias firewall='ssh -p 22254 anon@192.168.122.254'
 
 🎯 Done.
 
-## ⚖️ Disclaimer (Aviso Legal)
+## ⚠ DISCLAIMER
 
-ESTE SOFTWARE/TUTORIAL É FORNECIDO "COMO ESTÁ", SEM ABSOLUTAMENTE NENHUMA GARANTIA
-DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO A,
-GARANTIAS DE COMERCIALIZAÇÃO OU ADEQUAÇÃO A UM PROPÓSITO ESPECÍFICO.
+Este material é fornecido **"como está"**, sem qualquer tipo de garantia, expressa ou implícita, incluindo — mas não se limitando a — garantias de funcionamento, segurança, adequação a um propósito específico ou ausência de falhas.
 
-O USO DESTE SOFTWARE/TUTORIAL É DE TOTAL RESPONSABILIDADE DO USUÁRIO.
-
-EM NENHUM MOMENTO O AUTOR OU OS CONTRIBUIDORES SERÃO RESPONSÁVEIS POR
-QUALQUER DANO, PERDA DE DADOS OU FALHAS NO SISTEMA DECORRENTES DO USO
-DESTE PROGRAMA.
+O uso deste tutorial é **inteiramente por sua conta e risco**.
 
 ---
 
+## ❗ RESPONSABILIDADE
+
+Ao aplicar qualquer comando ou configuração aqui descrita, você concorda que:
+
+- Pode perder acesso ao sistema (incluindo SSH)
+- Pode interromper serviços e conectividade de rede
+- Pode causar perda de dados ou indisponibilidade do ambiente
+
+Nenhuma garantia é oferecida de que o sistema continuará funcional após as alterações.
+
+---
+
+## 🚫 ISENÇÃO DE RESPONSABILIDADE
+
+Em nenhuma circunstância o autor ou contribuidores poderão ser responsabilizados por:
+
+- Danos diretos ou indiretos
+- Perda de dados
+- Falhas de segurança
+- Interrupção de serviços
+- Qualquer prejuízo decorrente do uso ou má aplicação deste conteúdo
+
+---
+
+## 🧠 USO CONSCIENTE
+
+Este material assume que você:
+
+- Entende o básico de redes e firewall
+- Sabe recuperar o sistema manualmente
+- Possui acesso físico ou console ao equipamento
+
+Se esse não for o seu caso:
+
+👉 **Não aplique este conteúdo em ambiente crítico**
+
+---
+
+## 🛑 AVISO FINAL
+
+Se você não compreende exatamente o que cada comando faz:
+
+**não execute.**
+
+Estude primeiro, aplique depois.
+
+---
+
+Ao continuar, você declara que leu, entendeu e assume total responsabilidade pelas ações realizadas.
+
+---
 Copyright (C) 2026 VoidBR Team - https://github.com/voidlinuxbr  
 👉   https://t.me/m3vorak  
 👉   https://t.me/vcatafesta  
