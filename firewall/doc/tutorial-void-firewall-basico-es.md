@@ -1,12 +1,12 @@
 # 🧩 TUTORIAL VOID LINUX — IMPLEMENTACIÓN DEL ESQUEMA DE SEGURIDAD – LABORATORIO VOIDBR
 
-📌 Firewall con Void Linux, IPTables, NAT, Port Knocking.
+📌 Firewall Void Linux con IPTables + DNS independiente + Llamada de puertos.
 
 ---
 
-# 🔥 FIREWALL + PROXY INTEGRADO AL DOMINIO SAMBA4 (VOIDBR.NET)
+## 🔥 FIREWALL + PROXY INTEGRADO AL DOMINIO SAMBA4 (VOIDBR.NET)
 
-## 🎯 El OBJETIVO de este tutorial es Configurar un servidor **Firewall + Squid Proxy** en **Debian 13**, que actúa como **puerta de enlace principal (192.168.70.254)** e integrado en el dominio **VOIDBR.NET** (Controlador de dominio: **192.168.70.253**), para autenticar usuarios en Squid a través de **Active Directory (NTLM)** y aplicar **bloqueo. políticas**.
+## 🎯 El OBJETIVO de este tutorial es configurar un servidor **Firewall** en **Void Server**, que actúa como **puerta de enlace principal (192.168.70.254)**.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## Configuración básica para el archivo dnsmasq
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 Contenido:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## Habilitar DNSMASQ
+## Habilitar SIN LÍMITES
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## Valida servicios en línea

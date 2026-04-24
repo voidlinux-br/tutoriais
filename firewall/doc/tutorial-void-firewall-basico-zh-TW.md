@@ -1,12 +1,12 @@
 # 🧩 VOID LINUX 教學 — 安全方案實作 — VOIDBR 實驗室
 
-📌 防火牆 com Void Linux、IPTables、NAT、連接埠敲門。
+📌 防火牆 Void Linux com IPTables + 未綁定 DNS + 連接埠敲門。
 
 ---
 
-# 🔥 防火牆 + 代理程式整合到 SAMBA4 域 (VOIDBR.NET)
+## 🔥 防火牆 + 代理程式整合到 SAMBA4 域 (VOIDBR.NET)
 
-## 🎯 本教學的目標是在 **Debian 13** 上配置 **防火牆 + Squid 代理** 伺服器，充當 **主網關 (192.168.70.254)** 並整合到 **VOIDBR.NET** 網域（網域控制器：**192.168.70.253**） **阻止策略**。
+## 🎯 本教學的目標是在 **Void Server** 上設定 **Firewall** 伺服器，充當 **主網關 (192.168.70.254)**。
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## dnsmasq 檔案的基本配置
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 內容：
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## 啟用 DNSMASQ
+## 啟用未綁定
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## 驗證線上服務

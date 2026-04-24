@@ -1,12 +1,12 @@
 # 🧩 VOID LINUX TUTORIAL — SECURITY SCHEME IMPLEMENTATION – VOIDBR LABORATORY
 
-📌 Firewall com Void Linux, IPTables, NAT, Port Knocking.
+📌 Firewall Void Linux com IPTables + Unbound DNS + Port Knocking.
 
 ---
 
-# 🔥 FIREWALL + PROXY INTEGRATED TO THE SAMBA4 DOMAIN (VOIDBR.NET)
+## 🔥 FIREWALL + PROXY INTEGRATED TO THE SAMBA4 DOMAIN (VOIDBR.NET)
 
-## 🎯 OBJECTIVE in this tutorial is to Configure a **Firewall + Squid Proxy** server on **Debian 13**, acting as **main gateway (192.168.70.254)** and integrated into the **VOIDBR.NET** domain (Domain Controller: **192.168.70.253**), to authenticate users in Squid via **Active Directory (NTLM)** and apply **blocking policies**.
+## 🎯 OBJECTIVE in this tutorial is to configure a **Firewall** server on **Void Server**, acting as **main gateway (192.168.70.254)**.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## Basic configuration for the dnsmasq file
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 Content:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## Enable DNSMASQ
+## Enable UNBOUND
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## Validates online services

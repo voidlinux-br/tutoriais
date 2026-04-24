@@ -1,12 +1,12 @@
 # 🧩 TUTORIAL VOID LINUX — IMPLEMENTAZIONE DELLO SCHEMA DI SICUREZZA – LABORATORIO VOIDBR
 
-📌 Firewall con Void Linux, IPTables, NAT, Port Knocking.
+📌 Firewall Void Linux com IPTables + DNS non associato + Port Knocking.
 
 ---
 
-# 🔥 FIREWALL + PROXY INTEGRATI NEL DOMINIO SAMBA4 (VOIDBR.NET)
+## 🔥 FIREWALL + PROXY INTEGRATI NEL DOMINIO SAMBA4 (VOIDBR.NET)
 
-## 🎯 L'OBBIETTIVO di questo tutorial è configurare un server **Firewall + Squid Proxy** su **Debian 13**, che agisca come **gateway principale (192.168.70.254)** e integrato nel dominio **VOIDBR.NET** (controller di dominio: **192.168.70.253**), per autenticare gli utenti in Squid tramite **Active Directory (NTLM)** e applicare **politiche di blocco**.
+## 🎯 L'OBBIETTIVO di questo tutorial è configurare un server **Firewall** su **Void Server**, che agisca come **gateway principale (192.168.70.254)**.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## Configurazione di base per il file dnsmasq
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 Contenuto:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## Abilita DNSMASQ
+## Abilita NON ASSOCIATO
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## Convalida i servizi online

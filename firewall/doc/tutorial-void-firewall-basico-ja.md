@@ -1,12 +1,12 @@
 # 🧩 VOID LINUX チュートリアル — セキュリティ スキームの実装 – VOIDBR LABORATORY
 
-📌 Linux、IPTables、NAT、ポートノッキングを無効にするファイアウォール。
+📌 ファイアウォール Linux com IPTables + アンバインド DNS + ポートノッキングを無効にします。
 
 ---
 
-# 🔥 SAMBA4 ドメイン (VOIDBR.NET) に統合されたファイアウォール + プロキシ
+## 🔥 SAMBA4 ドメイン (VOIDBR.NET) に統合されたファイアウォール + プロキシ
 
-## 🎯 このチュートリアルの目的は、**Debian 13** 上に **ファイアウォール + Squid プロキシ** サーバーを構成し、**メイン ゲートウェイ (192.168.70.254)** として機能し、**VOIDBR.NET** ドメイン (ドメイン コントローラー: **192.168.70.253**) に統合して、**Active Directory 経由で Squid でユーザーを認証することです。 (NTLM)** し、**ブロック ポリシー**を適用します。
+## 🎯 このチュートリアルの目的は、**Void サーバー** 上に **メイン ゲートウェイ (192.168.70.254)** として機能する **ファイアウォール** サーバーを構成することです。
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## dnsmasq ファイルの基本構成
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 コンテンツ：
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## DNSMASQ を有効にする
+## UNBOUNDを有効にする
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## オンラインサービスを検証します

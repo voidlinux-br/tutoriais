@@ -1,12 +1,12 @@
 # 🧩 TUTORIEL VOID LINUX — MISE EN ŒUVRE DU SYSTÈME DE SÉCURITÉ – LABORATOIRE VOIDBR
 
-📌 Pare-feu avec Void Linux, IPTables, NAT, Port Knocking.
+📌 Firewall Void Linux avec IPTables + DNS non lié + Port Knocking.
 
 ---
 
-# 🔥 FIREWALL + PROXY INTÉGRÉ AU DOMAINE SAMBA4 (VOIDBR.NET)
+## 🔥 FIREWALL + PROXY INTÉGRÉ AU DOMAINE SAMBA4 (VOIDBR.NET)
 
-## 🎯 L'OBJECTIF de ce tutoriel est de configurer un serveur **Firewall + Squid Proxy** sur **Debian 13**, faisant office de **passerelle principale (192.168.70.254)** et intégré au domaine **VOIDBR.NET** (Contrôleur de domaine : **192.168.70.253**), pour authentifier les utilisateurs dans Squid via **Active Directory (NTLM)** et appliquer le **blocage politiques**.
+## 🎯 L'OBJECTIF de ce tutoriel est de configurer un serveur **Firewall** sur **Void Server**, agissant comme **passerelle principale (192.168.70.254)**.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## Configuration de base pour le fichier dnsmasq
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 Contenu:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## Activer DNSMASQ
+## Activer NON LIÉ
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## Valide les services en ligne

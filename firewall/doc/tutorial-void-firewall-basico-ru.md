@@ -1,12 +1,12 @@
 # 🧩 VOID LINUX TUTORIAL — РЕАЛИЗАЦИЯ СХЕМЫ БЕЗОПАСНОСТИ — VOIDBR LABORATORY
 
-📌 Брандмауэр com Void Linux, IPTables, NAT, Port Knocking.
+📌 Firewall Void Linux com IPTables + Unbound DNS + Knocking Port.
 
 ---
 
-# 🔥 БРАНДМАУЭР + ПРОКСИ, ИНТЕГРИРОВАННЫЕ В ДОМЕН SAMBA4 (VOIDBR.NET)
+## 🔥 БРАНДМАУЭР + ПРОКСИ, ИНТЕГРИРОВАННЫЕ В ДОМЕН SAMBA4 (VOIDBR.NET)
 
-## 🎯 ЦЕЛЬ этого руководства — настроить сервер **Firewall + Squid Proxy** на **Debian 13**, действующий как **основной шлюз (192.168.70.254)** и интегрированный в домен **VOIDBR.NET** (контроллер домена: **192.168.70.253**), для аутентификации пользователей в Squid через **Active Directory. (NTLM)** и примените **политику блокировки**.
+## 🎯 ЦЕЛЬ этого руководства — настроить сервер **Брандмауэр** на **Void Server**, действующий как **основной шлюз (192.168.70.254)**.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## Базовая конфигурация файла dnsmasq
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 Содержание:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## Включить DNSMASQ
+## Включить НЕСВЯЗАННОЕ
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## Проверяет онлайн-сервисы

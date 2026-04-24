@@ -1,12 +1,12 @@
 # 🧩 VOID LINUX 튜토리얼 — 보안 체계 구현 – VOIDBR LABORATORY
 
-🔥 방화벽 com Void Linux, IPTables, NAT, Port Knocking.
+😀 방화벽 Void Linux com IPTables + 언바운드 DNS + 포트 노킹.
 
 ---
 
-# 🔥 방화벽 + 프록시가 SAMBA4 도메인(VOIDBR.NET)에 통합되었습니다.
+## 🔥 방화벽 + 프록시가 SAMBA4 도메인(VOIDBR.NET)에 통합되었습니다.
 
-## 🎯 이 튜토리얼의 목표는 **Debian 13**에서 **방화벽 + Squid 프록시** 서버를 구성하고 **주 게이트웨이(192.168.70.254)** 역할을 하며 **VOIDBR.NET** 도메인(도메인 컨트롤러: **192.168.70.253**)에 통합하여 **Active Directory(NTLM)**를 통해 Squid에서 사용자를 인증하고 **차단 정책**을 적용하는 것입니다.
+## 🎯 이 튜토리얼의 목표는 **주 게이트웨이(192.168.70.254)** 역할을 하는 **Void Server**에 **방화벽** 서버를 구성하는 것입니다.
 
 ---
 
@@ -117,49 +117,38 @@ vinstall -y \
   openssh \
   tcpdump \
   conntrack-tools \
-  fail2ban \
-  dnsmasq
+  unbound
 ```
 
 ## dnsmasq 파일의 기본 구성
 
 ```bash
-vim /etc/dnsmasq.conf
+vim /etc/unbound/unbound.conf
 ```
 
 콘텐츠:
 
 ```bash
-# Interface onde o dnsmasq vai escutar
-interface=eth1
-bind-interfaces
+server:
+    interface: 127.0.0.1
+    interface: 192.168.122.254
+    interface: 192.168.70.254
 
-# Não usar /etc/resolv.conf automaticamente (opcional)
-no-resolv
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.122.0/24 allow
+    access-control: 192.168.70.0/24 allow
+    access-control: 0.0.0.0/0 refuse
 
-# Servidores DNS upstream
-server=8.8.8.8
-server=1.1.1.1
-
-# Cache DNS
-cache-size=1000
-
-# Domínio local
-domain=local
-expand-hosts
-
-# Arquivo de hosts adicional
-addn-hosts=/etc/hosts
-
-# Logs (útil para debug)
-log-queries
-log-dhcp
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1
+    forward-addr: 8.8.8.8
 ```
 
-## DNSMASQ 활성화
+## 언바운드 활성화
 
 ```bash
-vservice enable dnsmasq
+vservice enable unbound
 ```
 
 ## 온라인 서비스 검증
