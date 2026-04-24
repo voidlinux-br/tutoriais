@@ -4,21 +4,13 @@
 
 ---
 
-## 🔥 FIREWALL + PROXY IN DIE SAMBA4-DOMÄNE INTEGRIERT (VOIDBR.NET)
-
 ## 🎯 ZIEL in diesem Tutorial ist die Konfiguration eines **Firewall**-Servers auf **Void Server**, der als **Haupt-Gateway (192.168.70.254)** fungiert.
 
 ---
 
 ## 🌐 1. Netzwerktopologie – Funktion, IP-Adressierung und Namen:
 
-- Domain: VOIDBR.NET
-
-- Firewall/Proxy: SRVFIREWALL 192.168.70.254
-
-- Domänencontroller: SRVDC01 192.168.70.253
-
-- Dateiserver: SRVFILES 192.168.70.252
+- Firewall/Proxy: FIREWALL 192.168.70.254
 
 - WAN: „eth0“ → 192.168.122.254/24 (Gateway: 192.168.122.1)
 
@@ -90,9 +82,7 @@ Die Firewall ist der einzige Host, der dem Internet ausgesetzt ist.
 - Aktives IPv4-Routing
 - Der Scanner sieht die Tür nie
 - Firewall als einziger Eintrittspunkt
-- Keine Web-Dashboards veröffentlicht
 - SSH geschützt durch Port Knocking
-- Brute-Force-Kontrolle über Fail2ban
 - Kontrolliertes NAT für das LAN
 - Fernverwaltung über SSH-Tunnel
 
@@ -428,13 +418,8 @@ Erwartetes Ergebnis in tcpdump
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-
-14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
-14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
-^C
-2 packets captured
-3 packets received by filter
-0 packets dropped by kernel
+01:04:11.194410 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197978431 ecr 0,nop,wscale 7], length 0
+01:04:12.205806 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197979442 ecr 0,nop,wscale 7], length 0
 ```
 
 Wichtiger technischer Hinweis
@@ -453,7 +438,7 @@ cat /proc/net/xt_recent/KNOCK
 Erwartetes Ergebnis
 
 ```bash
-src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+src=192.168.122.1 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
 ```
 
 ## ✅ 10. EXTERNE SSH-VALIDIERUNG DURCHFÜHREN
@@ -494,7 +479,6 @@ source ~/.bashrc
 - Unsichtbares SSH ohne Klopfen
 - Einweg-Knock
 - Kurzes Zugriffsfenster
-- Verbot, Klopfen zu ignorieren
 - Funktionelles NAT
 - Permanente Firewall
 - Minimales rekursives DNS (bis PDC eintritt)

@@ -4,21 +4,13 @@
 
 ---
 
-## 🔥 SAMBA4 ドメイン (VOIDBR.NET) に統合されたファイアウォール + プロキシ
-
 ## 🎯 このチュートリアルの目的は、**Void サーバー** 上に **メイン ゲートウェイ (192.168.70.254)** として機能する **ファイアウォール** サーバーを構成することです。
 
 ---
 
 ## 🌐 1. ネットワーク トポロジ - 機能、IP アドレス指定および名前:
 
-- ドメイン: VOIDBR.NET
-
-- ファイアウォール/プロキシ: SRVFIREWALL 192.168.70.254
-
-- ドメイン コントローラー: SRVDC01 192.168.70.253
-
-- ファイルサーバー: SRVFILES 192.168.70.252
+- ファイアウォール/プロキシ: ファイアウォール 192.168.70.254
 
 - WAN: `eth0` → 192.168.122.254/24 (ゲートウェイ: 192.168.122.1)
 
@@ -90,9 +82,7 @@ iptables (ban definitivo do IP)
 - アクティブなIPv4ルーティング
 - スキャナーはドアを決して認識しません
 - 唯一のエントリポイントとしてのファイアウォール
-- Web ダッシュボードは公開されていません
 - ポートノッキングで保護されたSSH
-- Fail2banによるブルートフォース制御
 - LAN 用の制御された NAT
 - SSHトンネル経由のリモート管理
 
@@ -428,13 +418,8 @@ tcpdump で期待される結果
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-
-14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
-14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
-^C
-2 packets captured
-3 packets received by filter
-0 packets dropped by kernel
+01:04:11.194410 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197978431 ecr 0,nop,wscale 7], length 0
+01:04:12.205806 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197979442 ecr 0,nop,wscale 7], length 0
 ```
 
 重要な技術上の注意事項
@@ -453,7 +438,7 @@ cat /proc/net/xt_recent/KNOCK
 期待される結果
 
 ```bash
-src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+src=192.168.122.1 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
 ```
 
 ## ✅ 10. 外部 SSH 検証を実行する
@@ -494,7 +479,6 @@ source ~/.bashrc
 - ノックなしの目に見えない SSH
 - 使い捨てノック
 - 短いアクセスウィンドウ
-- ノック無視禁止
 - 機能的NAT
 - 永続的なファイアウォール
 - 最小限の再帰 DNS (PDC が入るまで)

@@ -4,21 +4,13 @@
 
 ---
 
-## 🔥 防火墙 + 代理集成到 SAMBA4 域 (VOIDBR.NET)
-
 ## 🎯 本教程的目标是在 **Void Server** 上配置 **Firewall** 服务器，充当 **主网关 (192.168.70.254)**。
 
 ---
 
 ## 🌐 1. 网络拓扑 - 功能、IP 寻址和名称：
 
-- 域名：VOIDBR.NET
-
-- 防火墙/代理：SRVFIREWALL 192.168.70.254
-
-- 域控制器：SRVDC01 192.168.70.253
-
-- 文件服务器：SRVFILES 192.168.70.252
+- 防火墙/代理：FIREWALL 192.168.70.254
 
 - 广域网：`eth0` → 192.168.122.254/24（网关：192.168.122.1）
 
@@ -90,9 +82,7 @@ iptables (ban definitivo do IP)
 - 主动 IPv4 路由
 - 扫描仪永远看不到门
 - 防火墙作为唯一的入口点
-- 没有发布网络仪表板
 - 受端口敲门保护的 SSH
-- 通过 Fail2ban 进行暴力控制
 - LAN 的受控 NAT
 - 通过 SSH 隧道进行远程管理
 
@@ -428,13 +418,8 @@ tcpdump 中的预期结果
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-
-14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
-14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
-^C
-2 packets captured
-3 packets received by filter
-0 packets dropped by kernel
+01:04:11.194410 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197978431 ecr 0,nop,wscale 7], length 0
+01:04:12.205806 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197979442 ecr 0,nop,wscale 7], length 0
 ```
 
 重要技术说明
@@ -453,7 +438,7 @@ cat /proc/net/xt_recent/KNOCK
 预期结果
 
 ```bash
-src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+src=192.168.122.1 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
 ```
 
 ## ✅ 10. 执行外部 SSH 验证
@@ -494,7 +479,6 @@ source ~/.bashrc
 - 隐形SSH无需敲门
 - 一次性敲击器
 - 访问窗口短
-- 禁止无视敲门
 - 功能性NAT
 - 持久防火墙
 - 最小递归 DNS（直到 PDC 进入）

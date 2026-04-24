@@ -4,21 +4,13 @@
 
 ---
 
-## 🔥 방화벽 + 프록시가 SAMBA4 도메인(VOIDBR.NET)에 통합되었습니다.
-
 ## 🎯 이 튜토리얼의 목표는 **주 게이트웨이(192.168.70.254)** 역할을 하는 **Void Server**에 **방화벽** 서버를 구성하는 것입니다.
 
 ---
 
 ## 🌐 1. 네트워크 토폴로지 - 기능, IP 주소 지정 및 이름:
 
-- 도메인: VOIDBR.NET
-
-- 방화벽/프록시: SRVFIREWALL 192.168.70.254
-
-- 도메인 컨트롤러: SRVDC01 192.168.70.253
-
-- 파일 서버: SRVFILES 192.168.70.252
+- 방화벽/프록시: 방화벽 192.168.70.254
 
 - WAN: `eth0` → 192.168.122.254/24(게이트웨이: 192.168.122.1)
 
@@ -90,9 +82,7 @@ iptables (ban definitivo do IP)
 - 활성 IPv4 라우팅
 - 스캐너가 문을 보지 못함
 - 유일한 진입점인 방화벽
-- 게시된 웹 대시보드가 없습니다.
 - 포트 노킹으로 보호되는 SSH
-- Fail2ban을 통한 무차별 대입 제어
 - LAN용 제어 NAT
 - SSH 터널을 통한 원격 관리
 
@@ -428,13 +418,8 @@ tcpdump의 예상 결과
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-
-14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
-14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
-^C
-2 packets captured
-3 packets received by filter
-0 packets dropped by kernel
+01:04:11.194410 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197978431 ecr 0,nop,wscale 7], length 0
+01:04:12.205806 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197979442 ecr 0,nop,wscale 7], length 0
 ```
 
 중요한 기술 노트
@@ -453,7 +438,7 @@ cat /proc/net/xt_recent/KNOCK
 예상되는 결과
 
 ```bash
-src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+src=192.168.122.1 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
 ```
 
 ## ✅ 10. 외부 SSH 유효성 검사 수행
@@ -494,7 +479,6 @@ source ~/.bashrc
 - 노크 없이 보이지 않는 SSH
 - 일회용 노크
 - 짧은 액세스 창
-- 노크 무시 금지
 - 기능적 NAT
 - 영구 방화벽
 - 최소 재귀 DNS(PDC가 들어갈 때까지)

@@ -4,21 +4,13 @@
 
 ---
 
-## 🔥 防火牆 + 代理程式整合到 SAMBA4 域 (VOIDBR.NET)
-
 ## 🎯 本教學的目標是在 **Void Server** 上設定 **Firewall** 伺服器，充當 **主網關 (192.168.70.254)**。
 
 ---
 
 ## 🌐 1. 網路拓撲 - 功能、IP 尋址和名稱：
 
-- 網域：VOIDBR.NET
-
-- 
-
-- 
-
-- 檔案伺服器：SRVFILES 192.168.70.252
+- 防火牆/代理：FIREWALL 192.168.70.254
 
 - 廣域網路：`eth0` → 192.168.122.254/24（閘道：192.168.122.1）
 
@@ -90,9 +82,7 @@ iptables (ban definitivo do IP)
 - 主動 IPv4 路由
 - 掃描器永遠看不到門
 - 防火牆作為唯一的入口點
-- 沒有發佈網頁儀表板
 - 受連接埠敲門保護的 SSH
-- 透過 Fail2ban 進行暴力控制
 - LAN 的受控 NAT
 - 透過 SSH 隧道進行遠端管理
 
@@ -428,13 +418,8 @@ tcpdump 中的預期結果
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-
-14:21:14.986974 IP 99.336.74.209.58634 > 192.168.122.254.12345: Flags [S], seq 4021117238, win 64240, options [mss 1436,sackOK,TS val 2035986741 ecr 0,nop,wscale 7], length 0
-14:21:14.987007 IP 192.168.122.254.12345 > 99.336.74.209.58634: Flags [R.], seq 0, ack 4021117239, win 0, length 0
-^C
-2 packets captured
-3 packets received by filter
-0 packets dropped by kernel
+01:04:11.194410 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197978431 ecr 0,nop,wscale 7], length 0
+01:04:12.205806 IP 192.168.122.1.33886 > 192.168.122.254.34567: Flags [S], seq 740762705, win 64240, options [mss 1460,sackOK,TS val 197979442 ecr 0,nop,wscale 7], length 0
 ```
 
 重要技術說明
@@ -453,7 +438,7 @@ cat /proc/net/xt_recent/KNOCK
 預期結果
 
 ```bash
-src=99.336.74.209 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
+src=192.168.122.1 ttl: 61 last_seen: 4302299386 oldest_pkt: 7 4302292227, 4302293242, 4302294266, 4302295290, 4302296314, 4302297338, 4302299386
 ```
 
 ## ✅ 10. 執行外部 SSH 驗證
@@ -494,7 +479,6 @@ source ~/.bashrc
 - 隱形SSH無需敲門
 - 免洗敲擊器
 - 訪問窗口短
-- 禁止無視敲門
 - 功能性NAT
 - 
 - 最小遞歸 DNS（直到 PDC 進入）
