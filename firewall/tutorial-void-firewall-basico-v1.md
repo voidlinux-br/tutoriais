@@ -85,7 +85,7 @@ Se algo der errado:
 - Entre novamente no sistema com `chroot`.
 - Verifique GRUB, EFI e `initramfs`.
 
-Errar faz parte. Entender o erro é o que separa usuário de operador.
+> Errar faz parte. Entender o erro é o que separa usuário de operador.
 ---
 
 ## Iniciar a Instalação
