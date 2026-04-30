@@ -144,8 +144,8 @@ vinstall -Syu
 vinstall -y \
   vim bash-completion \
   iptables iproute2 dhcpcd \
-  openssh tcpdump sshd \
-  conntrack-tools unbound 
+  openssh tcpdump openssh \
+  conntrack-tools unbound
 ```
 
 ---
