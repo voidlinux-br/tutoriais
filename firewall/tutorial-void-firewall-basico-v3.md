@@ -143,9 +143,9 @@ vinstall -Syu
 ```bash
 vinstall -y \
   vim bash-completion \
-  iptables iproute2 \
-  openssh tcpdump \
-  conntrack-tools unbound
+  iptables iproute2 dhcpcd \
+  openssh tcpdump sshd \
+  conntrack-tools unbound 
 ```
 
 ---
@@ -185,7 +185,7 @@ vsv
 ## 🔐 SSH HARDENING
 
 ```bash
-vim /etc/ssh/sshd_config.d/10-custom.conf
+vim /etc/ssh/sshd_config.d/20-custom.conf
 ```
 
 ```bash
@@ -205,20 +205,21 @@ vservice enable sshd
 
 ---
 
-## 🌐 REDE DO FIREWALL
+## 🌐 CONFIGURAÇÃO DE REDE DO FIREWALL
 
 ```bash
 vim /etc/dhcpcd.conf
 ```
 
 ```bash
-# WAN
+# See dhcpcd.conf(5) for details.
+
 interface eth0
 static ip_address=192.168.122.254/24
 static routers=192.168.122.1
-static domain_name_servers=192.168.122.1 8.8.8.8
+static domain_name_servers=127.0.0.1
 
-# LAN
+# LAN – 192.168.70.0/24
 interface eth1
 static ip_address=192.168.70.254/24
 nogateway
@@ -280,7 +281,8 @@ iptables -P OUTPUT ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# Ping LAN
+# Ping WAN/LAN
+iptables -A INPUT -s 192.168.122.0/24 -p icmp -j ACCEPT
 iptables -A INPUT -s 192.168.70.0/24 -p icmp -j ACCEPT
 
 # DNS LAN
