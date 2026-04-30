@@ -467,7 +467,7 @@ shadow:         compat
 [domain_realm]
     .voidbr.net = VOIDBR.NET
     voidbr.net = VOIDBR.NET
-
+```
 
 ## Configurar o /etc/samba/smb.conf
 
