@@ -402,7 +402,6 @@ exec /usr/bin/winbindd --foreground --no-process-group
 ## Criar o log do winbindd
 
 ```bash
-cat /etc/sv/winbindd/log/run 
 #!/bin/sh
 mkdir -p /var/log/winbindd
 exec svlogd -tt /var/log/winbindd
