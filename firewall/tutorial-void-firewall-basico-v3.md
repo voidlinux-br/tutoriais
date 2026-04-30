@@ -262,9 +262,6 @@ iptables -F
 iptables -t nat -F
 iptables -X
 ```
-
----
-
 ---
 
 ## INPUT
