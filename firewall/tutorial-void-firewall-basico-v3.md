@@ -411,6 +411,7 @@ exec svlogd -tt /var/log/winbindd
 
 ```bash
 vim /etc/hosts
+```
 
 ```bash
 # /etc/hosts: static lookup table for host names
