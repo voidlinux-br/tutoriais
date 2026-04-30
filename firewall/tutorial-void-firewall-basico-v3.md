@@ -522,6 +522,14 @@ vim /etc/samba/smb.conf
 
    template shell = /bin/bash
    template homedir = /home/%U
+
+```
+
+## Configurar /etc/hostname
+
+```bash
+echo firewall > /etc/hostname
+hostname firewall
 ```
 
 ## Ativar serviços
