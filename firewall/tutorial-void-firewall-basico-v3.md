@@ -375,7 +375,7 @@ alias firewall='ssh -p 22254 root@192.168.122.254'
 --- 
 
 
-## Colocar o Servidor no dominio
+## COLOCAR O SERVIDOR NO DOMINIO
 
 ## Instalar pacotes necessários
 
