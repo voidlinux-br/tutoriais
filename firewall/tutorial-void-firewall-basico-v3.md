@@ -433,7 +433,7 @@ vim /etc/hosts
 ## Apontar o resolvedor para o PDC01
 
 ```bash
-vim /etc/resolv.conf 
+vim /etc/resolv.conf
 ```
 
 ```bash
