@@ -360,7 +360,7 @@ nc -z 192.168.122.254 34567
 ### Conectar
 
 ```bash
-ssh -p 22254 anon@192.168.122.254
+ssh -p 22254 root@192.168.122.254
 ```
 
 ---
@@ -369,7 +369,7 @@ ssh -p 22254 anon@192.168.122.254
 
 ```bash
 alias knock='nc -z 192.168.122.254 34567'
-alias firewall='ssh -p 22254 anon@192.168.122.254'
+alias firewall='ssh -p 22254 root@192.168.122.254'
 ```
 
 --- 
