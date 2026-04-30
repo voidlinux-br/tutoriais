@@ -447,9 +447,21 @@ nameserver 192.168.70.253
 ## Configurar /etc/nsswitch.conf
 
 ```bash
-passwd:         compat winbind
-group:          compat winbind
-shadow:         compat
+# /etc/nsswitch.conf
+#
+# See nsswitch.conf(5) for information.
+#
+passwd:   files winbind
+group:    files winbind
+shadow:   files
+
+hosts:    files mdns dns
+networks:   files
+
+protocols:  files
+services:   files
+ethers:   files
+rpc:    files
 ```
 
 ## Configurar o /etc/krb5.conf
@@ -478,7 +490,14 @@ shadow:         compat
 ## Configurar o /etc/samba/smb.conf
 
 ```bash
-# SMB.CONF
+mv /etc/samba/smb.conf{,.bak}
+```
+
+```bash
+vim /etc/samba/smb.conf
+```
+
+```bash
 [global]
    workgroup = VOIDBR
    security = ads
