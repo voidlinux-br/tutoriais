@@ -425,9 +425,9 @@ vim /etc/hosts
 # /etc/hosts: static lookup table for host names
 
 #<ip-address>		<hostname.domain.org>	<hostname>
-127.0.0.1		localhost.localdomain	localhost
-::1			localhost.localdomain	localhost ip6-localhost
-192.168.70.254          firewall.voidbr.net  firewall
+127.0.0.1		     localhost.localdomain	localhost
+::1			         localhost.localdomain	localhost ip6-localhost
+192.168.70.254   firewall.voidbr.net  firewall
 
 # End of file
 ```
