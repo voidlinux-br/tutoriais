@@ -504,11 +504,10 @@ vim /etc/samba/smb.conf
    realm = VOIDBR.NET
    netbios name = firewall
    encrypt passwords = yes
-   # point to the services, the active interfaces
-   # interfaces = eth0
+   interfaces = eth0
    bind interfaces only = yes
 
-   log file = /opt/samba/var/log.%m
+   log file = /var/log/samba.%m
    max log size = 50
 
    winbind use default domain = yes
@@ -517,9 +516,9 @@ vim /etc/samba/smb.conf
    winbind refresh tickets = yes
 
    idmap config * : backend = tdb
-   idmap config * : range = 3000-7999
+   idmap config * : range = 500000-599999
    idmap config VOIDBR : backend = rid
-   idmap config VOIDBR : range = 10000-999999
+   idmap config VOIDBR : range = 10000-499999
 
    template shell = /bin/bash
    template homedir = /home/%U
