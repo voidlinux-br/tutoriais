@@ -147,7 +147,32 @@ vinstall -y \
   openssh tcpdump openssh \
   conntrack-tools unbound
 ```
+---
 
+## 🌐 CONFIGURAÇÃO DE REDE DO FIREWALL
+
+```bash
+vim /etc/dhcpcd.conf
+```
+
+```bash
+# See dhcpcd.conf(5) for details.
+
+interface eth0
+static ip_address=192.168.122.254/24
+static routers=192.168.122.1
+static domain_name_servers=127.0.0.1
+
+# LAN – 192.168.70.0/24
+interface eth1
+static ip_address=192.168.70.254/24
+nogateway
+```
+
+```bash
+vservice restart dhcpcd
+vsv
+```
 ---
 
 ## 🌐 DNS — UNBOUND
@@ -202,32 +227,6 @@ vservice enable sshd
 ⚠ Depois:
 - Desabilitar root
 - Usar chave SSH
-
----
-
-## 🌐 CONFIGURAÇÃO DE REDE DO FIREWALL
-
-```bash
-vim /etc/dhcpcd.conf
-```
-
-```bash
-# See dhcpcd.conf(5) for details.
-
-interface eth0
-static ip_address=192.168.122.254/24
-static routers=192.168.122.1
-static domain_name_servers=127.0.0.1
-
-# LAN – 192.168.70.0/24
-interface eth1
-static ip_address=192.168.70.254/24
-nogateway
-```
-
-```bash
-vservice restart dhcpcd
-```
 
 ---
 
