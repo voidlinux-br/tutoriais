@@ -442,6 +442,10 @@ vim /etc/resolv.conf
 domain voidbr.net
 search voidbr.net
 nameserver 192.168.70.253
+``
+
+```bash
+chattr +i /etc/resolv.conf
 ```
 
 ## Configurar /etc/nsswitch.conf
