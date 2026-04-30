@@ -387,10 +387,7 @@ vinstall -S samba mit-krb5-client cifs-utils smbclient
 
 ```bash
 mkdir -p /etc/sv/winbindd/log
-``` 
-
-```bash
-vim /etc/sv/winbindd/run 
+vim /etc/sv/winbindd/run
 ```
 
 ```bash
@@ -399,12 +396,23 @@ exec 2>&1
 exec /usr/bin/winbindd --foreground --no-process-group
 ```
 
+```bash
+chmod +x /etc/sv/winbindd/run
+```
+
 ## Criar o log do winbindd
+
+```bash
+vim /etc/sv/winbindd/log/run
+```
 
 ```bash
 #!/bin/sh
 mkdir -p /var/log/winbindd
 exec svlogd -tt /var/log/winbindd
+```
+```bash
+chmod +x /etc/sv/winbindd/log/run
 ```
 
 ## Configurar /etc/hosts
