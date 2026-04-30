@@ -265,14 +265,6 @@ iptables -X
 
 ---
 
-## 🔐 POLÍTICAS
-
-```bash
-iptables -P INPUT DROP
-iptables -P FORWARD DROP
-iptables -P OUTPUT ACCEPT
-```
-
 ---
 
 ## INPUT
@@ -333,9 +325,17 @@ iptables -A INPUT -i eth0 -p tcp --dport 34567 \
 iptables -A INPUT -i eth0 -p tcp --dport 22254 \
 -m recent --rcheck --seconds 15 --name KNOCK --rsource \
 -m recent --remove --name KNOCK --rsource -j ACCEPT
-sudo apt update && sudo apt install samba winbind libpam-winbind libnss-winbind krb5-user```
+```
 
 ---
+
+## 🔐 POLÍTICAS
+
+```bash
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+```
 
 ## 💾 SALVAR
 
