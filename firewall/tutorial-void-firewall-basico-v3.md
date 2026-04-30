@@ -222,6 +222,7 @@ LogLevel INFO
 
 ```bash
 vservice enable sshd
+vsv
 ```
 
 ⚠ Depois:
